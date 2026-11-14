@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { loadAnnouncements } from '../services/announcementApi';
@@ -8,6 +8,11 @@ import type { ApiAnnouncement } from '../services/announcementApi';
 
 import type { Announcement } from '../types/announcement';
 import { getUnreadAnnouncements } from '../services/announcementUtils';
+
+import AnnouncementPanel from '../components/AnnouncementPanel';
+import StudentGreeting from '../components/StudentGreeting';
+
+import Counter from '../components/Counter';
 
 const sampleAnnouncements: Announcement[] = [
   {
@@ -40,12 +45,16 @@ function formatStudentName(
 export default function HomeScreen() {
   const unreadAnnouncements =
     getUnreadAnnouncements(sampleAnnouncements);
-  
+
   const studentName = formatStudentName('Shin', 'Bartocillo');
+
   const announcementTitles = sampleAnnouncements.map(
-  item => item.title
-);
-  const [apiAnnouncements, setApiAnnouncements] = useState<ApiAnnouncement[]>([]);
+    item => item.title
+  );
+
+  const [apiAnnouncements, setApiAnnouncements] =
+    useState<ApiAnnouncement[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,7 +75,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>Campus Connect</Text>
 
         <Text style={styles.subtitle}>
@@ -74,12 +83,10 @@ export default function HomeScreen() {
         </Text>
 
         <Text style={styles.description}>
-          Welcome to the Week 2 project!
+          Welcome to the Week 3 project!
         </Text>
 
-        <Text style={styles.description}>
-          Student Name: {studentName}
-        </Text>
+        <StudentGreeting name={studentName} />
 
         <Text style={styles.description}>
           Announcement Titles: {announcementTitles.join(', ')}
@@ -87,7 +94,7 @@ export default function HomeScreen() {
 
         <View style={styles.announcementSection}>
           <Text style={styles.sectionTitle}>
-            Announcements
+            Week 2 Announcements
           </Text>
 
           <Text style={styles.unreadCount}>
@@ -130,7 +137,11 @@ export default function HomeScreen() {
             </View>
           ))}
         </View>
-      </View>
+
+                <AnnouncementPanel />
+
+        <Counter />
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -141,10 +152,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8F0FE',
   },
   content: {
-    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
     padding: 24,
+    paddingBottom: 40,
   },
   title: {
     fontSize: 32,
