@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Text,
   View,
-  ScrollView,
 } from 'react-native';
 
 import AnnouncementCard from './AnnouncementCard';
@@ -41,6 +40,7 @@ export default function AnnouncementPanel() {
   const unreadCount = announcements.filter(
     (announcement) => !announcement.read
   ).length;
+
   const totalCount = announcements.length;
 
   const handleMarkRead = (id: string) => {
@@ -59,15 +59,17 @@ export default function AnnouncementPanel() {
         Campus Announcements
       </Text>
 
-<Text style={styles.counter}>
-  Total Announcements: {totalCount}
-</Text>
+      <View style={styles.summary}>
+        <Text style={styles.counter}>
+          Total Announcements: {totalCount}
+        </Text>
 
-<Text style={styles.counter}>
-  Unread Announcements: {unreadCount}
-</Text>
+        <Text style={styles.counter}>
+          Unread Announcements: {unreadCount}
+        </Text>
+      </View>
 
-      <ScrollView>
+      <View>
         {announcements.map((announcement) => (
           <AnnouncementCard
             key={announcement.id}
@@ -78,7 +80,7 @@ export default function AnnouncementPanel() {
             onMarkRead={() => handleMarkRead(announcement.id)}
           />
         ))}
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -86,17 +88,25 @@ export default function AnnouncementPanel() {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    marginTop: 24,
+    marginTop: 16,
+    paddingHorizontal: 12,
   },
   heading: {
     fontSize: 21,
     fontWeight: '700',
-    marginBottom: 10,
+    color: '#172B4D',
+    marginBottom: 12,
+  },
+  summary: {
+    backgroundColor: '#F1F5F9',
+    padding: 14,
+    borderRadius: 10,
+    marginBottom: 12,
+    gap: 8,
   },
   counter: {
     fontSize: 15,
     fontWeight: '600',
-    marginBottom: 12,
     color: '#2563EB',
   },
 });

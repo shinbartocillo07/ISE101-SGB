@@ -1,6 +1,12 @@
 
-import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { useEffect, useState, useRef, type ComponentRef } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  useWindowDimensions,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { loadAnnouncements } from '../services/announcementApi';
@@ -11,8 +17,9 @@ import { getUnreadAnnouncements } from '../services/announcementUtils';
 
 import AnnouncementPanel from '../components/AnnouncementPanel';
 import StudentGreeting from '../components/StudentGreeting';
-
 import Counter from '../components/Counter';
+import SectionHeading from '../components/SectionHeading';
+import ActionButton from '../components/ActionButton';
 
 const sampleAnnouncements: Announcement[] = [
   {
@@ -43,6 +50,13 @@ function formatStudentName(
 }
 
 export default function HomeScreen() {
+  const { width } = useWindowDimensions();
+  const [compact, setCompact] = useState(false);
+
+  const scrollViewRef = useRef<ComponentRef<typeof ScrollView>>(null);
+
+  const [announcementPosition, setAnnouncementPosition] = useState(0);
+
   const unreadAnnouncements =
     getUnreadAnnouncements(sampleAnnouncements);
 
@@ -58,12 +72,18 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Update compact layout after the initial render
+  useEffect(() => {
+    setCompact(width < 380);
+  }, [width]);
+
+  // Load API announcements
   useEffect(() => {
     async function fetchAnnouncements() {
       try {
         const data = await loadAnnouncements();
         setApiAnnouncements(data);
-      } catch (err) {
+      } catch {
         setError('Unable to load announcements. Please try again.');
       } finally {
         setLoading(false);
@@ -73,20 +93,38 @@ export default function HomeScreen() {
     fetchAnnouncements();
   }, []);
 
+  const handleExploreAnnouncements = () => {
+    scrollViewRef.current?.scrollTo({
+      y: announcementPosition,
+      animated: true,
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Campus Connect</Text>
+      <ScrollView
+        ref={scrollViewRef}
+        contentContainerStyle={[
+          styles.content,
+          compact && styles.compactContent,
+        ]}
+      >
+        <SectionHeading />
 
         <Text style={styles.subtitle}>
           One campus. Connected students.
         </Text>
 
         <Text style={styles.description}>
-          Welcome to the Week 3 project!
+          Welcome to the Week 4 project!
         </Text>
 
         <StudentGreeting name={studentName} />
+
+        <ActionButton
+          label="Explore Announcements"
+          onPress={handleExploreAnnouncements}
+        />
 
         <Text style={styles.description}>
           Announcement Titles: {announcementTitles.join(', ')}
@@ -138,7 +176,13 @@ export default function HomeScreen() {
           ))}
         </View>
 
-                <AnnouncementPanel />
+        <View
+          onLayout={(event) =>
+            setAnnouncementPosition(event.nativeEvent.layout.y)
+          }
+        >
+          <AnnouncementPanel />
+        </View>
 
         <Counter />
       </ScrollView>
@@ -156,17 +200,15 @@ const styles = StyleSheet.create({
     padding: 24,
     paddingBottom: 40,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#1E3A5F',
-    marginBottom: 12,
+  compactContent: {
+    padding: 14,
   },
   subtitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#3B5998',
     marginBottom: 16,
+    textAlign: 'center',
   },
   description: {
     fontSize: 14,
@@ -176,6 +218,7 @@ const styles = StyleSheet.create({
   },
   announcementSection: {
     width: '100%',
+    marginTop: 24,
   },
   sectionTitle: {
     fontSize: 22,
